@@ -43,6 +43,7 @@
     "eslint-config-google": "^0.14.0"
   },
   "dependencies": {
+    "@types/aws-lambda": "^8.10.63",
     "axios": "^0.20.0",
     "bunyan": "^1.8.14"
   }
