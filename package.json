@@ -44,6 +44,8 @@
   },
   "dependencies": {
     "@types/aws-lambda": "^8.10.63",
+    "@types/aws-sdk": "^2.7.0",
+    "aws-sdk": "^2.771.0",
     "axios": "^0.20.0",
     "bunyan": "^1.8.14"
   }
