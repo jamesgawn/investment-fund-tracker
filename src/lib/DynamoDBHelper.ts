@@ -3,7 +3,7 @@ import {Base} from "./Base";
 import Logger from "bunyan";
 import {IRecord} from "../domain/IRecord";
 
-export class DynamoDBHelper extends Base {
+export class DynamoDBHelper<T extends IRecord> extends Base {
   tableName: string;
   client: DynamoDB.DocumentClient;
   constructor(logger: Logger, tableName: string) {
@@ -14,7 +14,21 @@ export class DynamoDBHelper extends Base {
     });
   }
 
-  async getRecordById<T extends IRecord>(id: string) {
+  async getRecords() {
+    try {
+      const params = {
+        TableName: this.tableName
+      };
+      this.log.info("Retrieving records");
+      const records = await this.client.scan(params).promise();
+      this.log.info("Retrieved records");
+      return records.Items as IRecord[];
+    } catch (err) {
+      throw this.rethrowError("Failed to retrieve records", err);
+    }
+  }
+
+  async getRecordById(id: string) {
     try {
       const params = {
         TableName: this.tableName,
@@ -31,7 +45,7 @@ export class DynamoDBHelper extends Base {
     }
   }
 
-  async putRecord<T extends IRecord>(record: T) {
+  async putRecord(record: T) {
     const params = {
       Item: record,
       TableName: this.tableName,
