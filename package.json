@@ -41,5 +41,9 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-config-google": "^0.14.0"
+  },
+  "dependencies": {
+    "axios": "^0.20.0",
+    "bunyan": "^1.8.14"
   }
 }
