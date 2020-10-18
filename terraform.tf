@@ -38,6 +38,7 @@ module "data-retrieval-lambda" {
   handler = "dataRetrievalLambda.handler"
   source_dir = "${path.module}/dist"
   notification_sns_queue_name = var.notification_sns_queue_name
+  timeout = 5
 }
 
 resource "aws_iam_policy" "data-retrieval" {
@@ -51,9 +52,10 @@ resource "aws_iam_policy" "data-retrieval" {
           "Action": [
               "dynamodb:PutItem",
               "dynamodb:GetItem",
-              "dynamodb:UpdateItem"
+              "dynamodb:UpdateItem",
+              "dynamodb:Scan"
           ],
-          "Resource": "arn:aws:dynamodb:*:*:table/${aws_dynamodb_table.securities.name}"
+          "Resource": "arn:aws:dynamodb:*:*:table/${var.name}-*"
       }
   ]
 }
