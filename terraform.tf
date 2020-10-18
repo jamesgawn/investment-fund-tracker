@@ -75,3 +75,21 @@ resource "aws_dynamodb_table" "securities" {
     type = "S"
   }
 }
+
+resource "aws_dynamodb_table" "fund-prices" {
+  name = "${var.name}-fund-prices"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key = "isin"
+  range_key = "date"
+
+  attribute {
+    name = "isin"
+    type = "S"
+  }
+
+  attribute {
+    name = "date"
+    type = "S"
+
+  }
+}
