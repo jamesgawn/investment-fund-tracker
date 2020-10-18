@@ -24,7 +24,7 @@ describe("SecurityRetriever", () => {
       const isin = "GB00B0CNH163";
       const name = "Super Fund";
       const price = 50.0;
-      const fundPrice = await sr.getFund({
+      const fundPrice = await sr.getFundPrice({
         isin: isin,
         name: name
       });
@@ -44,7 +44,7 @@ describe("SecurityRetriever", () => {
       });
       const isin = "GB00B0CNH163";
       const name = "Super Fund";
-      await expect(sr.getFund({
+      await expect(sr.getFundPrice({
         isin: isin,
         name: name
       })).rejects.toThrow("Unable to find match for ([0-9]+.[0-9][0-9]) GBX in page");
@@ -55,7 +55,7 @@ describe("SecurityRetriever", () => {
       });
       const isin = "GB00B0CNH163";
       const name = "Super Fund";
-      await expect(sr.getFund({
+      await expect(sr.getFundPrice({
         isin: isin,
         name: name
       })).rejects.toThrow("No contents in page https://www.markets.iweb-sharedealing.co.uk/funds-centre/fund-supermarket/detail/GB00B0CNH163");
@@ -65,7 +65,7 @@ describe("SecurityRetriever", () => {
       mockedAxios.get.mockRejectedValue(error);
       const isin = "GB00B0CNH163";
       const name = "Super Fund";
-      await expect(sr.getFund({
+      await expect(sr.getFundPrice({
         isin: isin,
         name: name
       })).rejects.toThrow(error);

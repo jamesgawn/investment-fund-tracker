@@ -10,7 +10,7 @@ export class SecurityRetriever extends Base {
     super(logger);
   }
 
-  async getFund(fund : IFund) {
+  async getFundPrice(fund : IFund) {
     const rawPage = await this.getWebPage(`https://www.markets.iweb-sharedealing.co.uk/funds-centre/fund-supermarket/detail/${fund.isin}`);
     const rawPrice = this.findStringInPage(rawPage, "([0-9]+\.[0-9][0-9]) GBX");
     const price = Number.parseFloat(rawPrice);
