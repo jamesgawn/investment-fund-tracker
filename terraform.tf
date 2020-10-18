@@ -105,6 +105,11 @@ module "holding-valuation-lambda" {
   timeout = 10
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_execution_dynamodb_access_attachment" {
+  policy_arn = aws_iam_policy.data-retrieval.arn
+  role = module.holding-valuation-lambda.lambda_execution_role_name
+}
+
 resource "aws_dynamodb_table" "fund-holdings" {
   name = "${var.name}-fund-holdings"
   billing_mode = "PAY_PER_REQUEST"
