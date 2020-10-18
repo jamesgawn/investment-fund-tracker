@@ -1,24 +1,20 @@
-import {Fund} from "../domain/Fund";
 import Logger from "bunyan";
 import {Base} from "./Base";
 import axios, {AxiosResponse} from "axios";
 import {userAgent} from "./Utils";
-
-interface IFundInput {
-  isin: string,
-  name: string
-}
+import {IFund} from "../domain/IFund";
+import {FundPrice} from "../domain/FundPrice";
 
 export class SecurityRetriever extends Base {
   constructor(logger: Logger) {
     super(logger);
   }
 
-  async getFund(fund : IFundInput) {
+  async getFund(fund : IFund) {
     const rawPage = await this.getWebPage(`https://www.markets.iweb-sharedealing.co.uk/funds-centre/fund-supermarket/detail/${fund.isin}`);
     const rawPrice = this.findStringInPage(rawPage, "([0-9]+\.[0-9][0-9]) GBX");
     const price = Number.parseFloat(rawPrice);
-    return new Fund(fund.isin, fund.name, price);
+    return new FundPrice(fund, price, new Date());
   }
 
   private async getWebPage(url: string) {

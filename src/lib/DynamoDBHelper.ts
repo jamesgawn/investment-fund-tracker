@@ -1,9 +1,8 @@
 import {DynamoDB} from "aws-sdk";
 import {Base} from "./Base";
 import Logger from "bunyan";
-import {IRecord} from "../domain/IRecord";
 
-export class DynamoDBHelper<T extends IRecord> extends Base {
+export class DynamoDBHelper<T extends object> extends Base {
   tableName: string;
   client: DynamoDB.DocumentClient;
   constructor(logger: Logger, tableName: string) {
@@ -22,26 +21,24 @@ export class DynamoDBHelper<T extends IRecord> extends Base {
       this.log.info("Retrieving records");
       const records = await this.client.scan(params).promise();
       this.log.info("Retrieved records");
-      return records.Items as IRecord[];
+      return records.Items as T[];
     } catch (err) {
       throw this.rethrowError("Failed to retrieve records", err);
     }
   }
 
-  async getRecordById(id: string) {
+  async getRecordByKey(keyParameters: object) {
     try {
       const params = {
         TableName: this.tableName,
-        Key: {
-          "id": id,
-        }
+        Key: keyParameters
       };
-      this.log.info(`Retrieving record ${id}`);
+      this.log.info("Retrieving record", keyParameters);
       const result = await this.client.get(params).promise();
-      this.log.info(`Retrieved record ${id}`);
+      this.log.info("Retrieved record", keyParameters);
       return result.Item as T;
     } catch (err) {
-      throw this.rethrowError(`Failed to retrieve record ${id}`, err);
+      throw this.rethrowError("Failed to retrieve record", err, keyParameters);
     }
   }
 
@@ -51,12 +48,12 @@ export class DynamoDBHelper<T extends IRecord> extends Base {
       TableName: this.tableName,
     };
     try {
-      this.log.info(`Putting record ${record.id}`);
+      this.log.info(`Putting record ${record}`);
       const result = await this.client.put(params).promise();
-      this.log.info(`Put record ${record.id}`);
+      this.log.info(`Put record ${record}`);
       return result;
     } catch (err) {
-      throw this.rethrowError(`Failed to put record ${record.id}`, err);
+      throw this.rethrowError("Failed to put record", err, record);
     }
   }
 }

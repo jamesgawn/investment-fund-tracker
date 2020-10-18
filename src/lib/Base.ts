@@ -8,11 +8,11 @@ export class Base {
     this.log = new LoggerHelper(logger, this.constructor["name"]);
   }
 
-  protected throwError(friendlyMessage: string) {
-    return throwError(this.log, friendlyMessage);
+  protected throwError(friendlyMessage: string, data?: object) {
+    return throwError(this.log, friendlyMessage, data);
   }
 
-  protected rethrowError(friendlyMessage: string, err: Error) {
-    return rethrowError(this.log, friendlyMessage, err);
+  protected rethrowError(friendlyMessage: string, err: Error, data?: object) {
+    return rethrowError(this.log, friendlyMessage, err, data);
   }
 }

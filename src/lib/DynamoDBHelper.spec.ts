@@ -3,7 +3,6 @@ import {PromiseResult} from "aws-sdk/lib/request";
 import {AWSError} from "aws-sdk";
 import {DocumentClient} from "aws-sdk/clients/dynamodb";
 import Logger from "bunyan";
-import {IRecord} from "../domain/IRecord";
 
 const mockScan = jest.fn();
 const mockGet = jest.fn();
@@ -17,6 +16,10 @@ jest.mock("aws-sdk", () => ({
     }))
   }
 }));
+
+interface IRecord {
+  id: string
+}
 
 describe("DynamoDBHelper", () => {
   let dbh : DynamoDBHelper<IRecord>;
@@ -70,7 +73,9 @@ describe("DynamoDBHelper", () => {
       mockGetPromise.mockResolvedValue({
         "Item": testRecord1
       } as any);
-      const record = await dbh.getRecordById("record1");
+      const record = await dbh.getRecordByKey({
+        id: "record1"
+      });
       expect(mockGet).toBeCalledWith({
         TableName: tableName,
         Key: {
@@ -82,7 +87,9 @@ describe("DynamoDBHelper", () => {
     test("should throw error if one occurs when attempting to retrieve a record", async () => {
       const sampleError = new Error("error");
       mockGetPromise.mockRejectedValue(sampleError);
-      await expect(dbh.getRecordById("film1")).rejects.toThrow("error");
+      await expect(dbh.getRecordByKey({
+        id: "record1"
+      })).rejects.toThrow("error");
     });
   });
   describe("putRecord", () => {

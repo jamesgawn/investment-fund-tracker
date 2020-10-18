@@ -23,7 +23,7 @@ describe("SecurityRetriever", () => {
       const isin = "GB00B0CNH163";
       const name = "Super Fund";
       const price = 50.0;
-      const fund = await sr.getFund({
+      const fundPrice = await sr.getFund({
         isin: isin,
         name: name
       });
@@ -32,9 +32,9 @@ describe("SecurityRetriever", () => {
           "User-Agent": userAgent
         }
       });
-      expect(fund.isin).toBe(isin);
-      expect(fund.name).toBe(name);
-      expect(fund.price).toBe(price);
+      expect(fundPrice.fund.isin).toBe(isin);
+      expect(fundPrice.fund.name).toBe(name);
+      expect(fundPrice.price).toBe(price);
     });
     test("should throw error if page returns but price is not present", async () => {
       mockedAxios.get.mockResolvedValue({

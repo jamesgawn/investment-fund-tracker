@@ -1,10 +1,11 @@
-export class Fund {
+import {IFund} from "./IFund";
+
+export class Fund implements IFund {
   isin: string;
   name: string;
-  price: number;
-  constructor(isin: string, name: string, price: number) {
+
+  constructor(isin: string, name: string) {
     this.isin = isin;
     this.name = name;
-    this.price = price;
   }
 }
