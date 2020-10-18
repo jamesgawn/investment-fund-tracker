@@ -35,7 +35,7 @@ module "data-retrieval-lambda" {
   source = "./infra/lambda-scheduled"
   name = "${var.name}-data-retrieval"
   description = "A lambda function to regularly retrieve and store the latest security prices."
-  handler = "dataRetrievalLambda.handler"
+  handler = "lambda.dataRetrievalHandler"
   source_dir = "${path.module}/dist"
   notification_sns_queue_name = var.notification_sns_queue_name
   timeout = 10
@@ -92,6 +92,32 @@ resource "aws_dynamodb_table" "fund-prices" {
   attribute {
     name = "date"
     type = "S"
+  }
+}
 
+module "holding-valuation-lambda" {
+  source = "./infra/lambda-simple"
+  name = "${var.name}-holding-valuation"
+  description = "A lambda function to calculate the currently holding valuation."
+  handler = "lambda.holdingValuationHandler"
+  source_dir = "${path.module}/dist"
+  notification_sns_queue_name = var.notification_sns_queue_name
+  timeout = 10
+}
+
+resource "aws_dynamodb_table" "fund-holdings" {
+  name = "${var.name}-fund-holdings"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key = "isin"
+  range_key = "date"
+
+  attribute {
+    name = "isin"
+    type = "S"
+  }
+
+  attribute {
+    name = "date"
+    type = "S"
   }
 }

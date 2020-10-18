@@ -8,7 +8,7 @@
     "test": "jest  --runInBand",
     "coverage": "jest --collectCoverage",
     "lint": "eslint src/**/*.ts",
-    "tcl": "npm run test && npm run coverage && npm run lint",
+    "tcl": "npm run coverage && npm run lint",
     "deploy": "npm run build && terraform apply",
     "undeploy": "terraform destroy"
   },

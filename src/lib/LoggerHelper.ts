@@ -1,4 +1,5 @@
 import Logger from "bunyan";
+import {APIGatewayProxyEventV2, Context} from "aws-lambda";
 
 export class LoggerHelper {
   log: Logger;
@@ -26,5 +27,18 @@ export class LoggerHelper {
     } else {
       this.log.error(err, msg);
     }
+  }
+
+  static createLogger(name: string, event: APIGatewayProxyEventV2, context: Context) {
+    const log = Logger.createLogger({
+      name: name,
+      src: true,
+      awsRequestId: context.awsRequestId
+    });
+    log.info({
+      event: event,
+      context: context
+    });
+    return log;
   }
 }
