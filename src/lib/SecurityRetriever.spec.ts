@@ -2,6 +2,7 @@ import {SecurityRetriever} from "./SecurityRetriever";
 import Logger from "bunyan";
 import axios from "axios";
 import {userAgent} from "./Utils";
+import {format} from "date-fns";
 
 jest.mock("axios");
 const mockedAxios: jest.Mocked<typeof axios> = axios as any;
@@ -32,9 +33,10 @@ describe("SecurityRetriever", () => {
           "User-Agent": userAgent
         }
       });
-      expect(fundPrice.fund.isin).toBe(isin);
-      expect(fundPrice.fund.name).toBe(name);
+      expect(fundPrice.isin).toBe(isin);
+      expect(fundPrice.name).toBe(name);
       expect(fundPrice.price).toBe(price);
+      expect(fundPrice.date).toBe(format(new Date(), "yyyy-MM-dd"));
     });
     test("should throw error if page returns but price is not present", async () => {
       mockedAxios.get.mockResolvedValue({

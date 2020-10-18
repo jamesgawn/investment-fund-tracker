@@ -10,7 +10,8 @@ describe("Fund", () => {
       const price = 50;
       const date = new Date();
       const fundPrice = new FundPrice(fund, price, date);
-      expect(fundPrice.fund).toBe(fund);
+      expect(fundPrice.isin).toBe(fund.isin);
+      expect(fundPrice.name).toBe(fund.name);
       expect(fundPrice.price).toBe(price);
       expect(fundPrice.date).toBe(date);
     });

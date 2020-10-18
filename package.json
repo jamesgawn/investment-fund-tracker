@@ -5,7 +5,7 @@
   "scripts": {
     "build": "rimraf ./dist && tsc",
     "postbuild": "cp package.json ./dist/package.json && npm install --production --prefix ./dist/",
-    "test": "jest",
+    "test": "jest  --runInBand",
     "coverage": "jest --collectCoverage",
     "lint": "eslint src/**/*.ts",
     "tcl": "npm run test && npm run coverage && npm run lint",
@@ -40,13 +40,14 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
-    "eslint-config-google": "^0.14.0"
+    "eslint-config-google": "^0.14.0",
+    "aws-sdk": "^2.771.0",
+    "@types/aws-lambda": "^8.10.63",
+    "@types/aws-sdk": "^2.7.0"
   },
   "dependencies": {
-    "@types/aws-lambda": "^8.10.63",
-    "@types/aws-sdk": "^2.7.0",
-    "aws-sdk": "^2.771.0",
     "axios": "^0.20.0",
-    "bunyan": "^1.8.14"
+    "bunyan": "^1.8.14",
+    "date-fns": "^2.16.1"
   }
 }
