@@ -48,9 +48,9 @@ export class DynamoDBHelper<T extends object> extends Base {
       TableName: this.tableName,
     };
     try {
-      this.log.info(`Putting record ${record}`);
+      this.log.info("Putting record", record);
       const result = await this.client.put(params).promise();
-      this.log.info(`Put record ${record}`);
+      this.log.info("Put record", record);
       return result;
     } catch (err) {
       throw this.rethrowError("Failed to put record", err, record);
