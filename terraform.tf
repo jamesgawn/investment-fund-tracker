@@ -31,18 +31,8 @@ terraform {
   }
 }
 
-module "data-retrieval-lambda" {
-  source = "./infra/lambda-scheduled"
-  name = "${var.name}-data-retrieval"
-  description = "A lambda function to regularly retrieve and store the latest security prices."
-  handler = "lambda.dataRetrievalHandler"
-  source_dir = "${path.module}/dist"
-  notification_sns_queue_name = var.notification_sns_queue_name
-  timeout = 10
-}
-
-resource "aws_iam_policy" "data-retrieval" {
-  name = "${var.name}-data-retrieval"
+resource "aws_iam_policy" "ift-lambda-data-store-access" {
+  name = "${var.name}-lambda-data-store-access"
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -62,8 +52,18 @@ resource "aws_iam_policy" "data-retrieval" {
   EOF
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_execution_dynamodb_access_attachment" {
-  policy_arn = aws_iam_policy.data-retrieval.arn
+module "data-retrieval-lambda" {
+  source = "./infra/lambda-scheduled"
+  name = "${var.name}-data-retrieval"
+  description = "A lambda function to regularly retrieve and store the latest security prices."
+  handler = "lambda.dataRetrievalHandler"
+  source_dir = "${path.module}/dist"
+  notification_sns_queue_name = var.notification_sns_queue_name
+  timeout = 10
+}
+
+resource "aws_iam_role_policy_attachment" "data-retrieval-lambda" {
+  policy_arn = aws_iam_policy.ift-lambda-data-store-access.arn
   role = module.data-retrieval-lambda.lambda_execution_role_name
 }
 
@@ -105,8 +105,8 @@ module "holding-valuation-lambda" {
   timeout = 10
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_execution_dynamodb_access_attachment" {
-  policy_arn = aws_iam_policy.data-retrieval.arn
+resource "aws_iam_role_policy_attachment" "holding-valuation-lambda" {
+  policy_arn = aws_iam_policy.ift-lambda-data-store-access.arn
   role = module.holding-valuation-lambda.lambda_execution_role_name
 }
 
