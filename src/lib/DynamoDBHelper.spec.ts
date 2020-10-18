@@ -6,12 +6,14 @@ import Logger from "bunyan";
 
 const mockScan = jest.fn();
 const mockGet = jest.fn();
+const mockQuery = jest.fn();
 const mockPut = jest.fn();
 jest.mock("aws-sdk", () => ({
   DynamoDB: {
     DocumentClient: jest.fn().mockImplementation(() => ({
       scan: mockScan,
       get: mockGet,
+      query: mockQuery,
       put: mockPut
     }))
   }
@@ -35,17 +37,22 @@ describe("DynamoDBHelper", () => {
   };
   let mockScanPromise : jest.Mock<Promise<PromiseResult<DocumentClient.ScanInput, AWSError>>>;
   let mockGetPromise : jest.Mock<Promise<PromiseResult<DocumentClient.GetItemOutput, AWSError>>>;
+  let mockQueryPromise : jest.Mock<Promise<PromiseResult<DocumentClient.QueryOutput, AWSError>>>;
   let mockPutPromise : jest.Mock<Promise<PromiseResult<DocumentClient.PutItemOutput, AWSError>>>;
   beforeEach(() => {
     dbh = new DynamoDBHelper<IRecord>(logger, tableName);
     mockScanPromise = jest.fn();
     mockGetPromise = jest.fn();
+    mockQueryPromise = jest.fn();
     mockPutPromise = jest.fn();
     mockScan.mockImplementation(() => ({
       promise: mockScanPromise
     }));
     mockGet.mockImplementation(() => ({
       promise: mockGetPromise
+    }));
+    mockQuery.mockImplementation(() => ({
+      promise: mockQueryPromise
     }));
     mockPut.mockImplementation(() => ({
       promise: mockPutPromise
@@ -90,6 +97,32 @@ describe("DynamoDBHelper", () => {
       await expect(dbh.getRecordByKey({
         id: "record1"
       })).rejects.toThrow("error");
+    });
+  });
+  describe("queryRecord", () => {
+    test("should return record if in table", async () => {
+      mockQueryPromise.mockResolvedValue({
+        "Items": [testRecord1]
+      } as any);
+      const record = await dbh.queryRecordByKey({
+        id: "record1"
+      }, 1, false);
+      expect(mockQuery).toBeCalledWith({
+        TableName: tableName,
+        Key: {
+          "id": "record1",
+        },
+        Limit: 1,
+        ScanIndexForward: false
+      });
+      expect(record).toStrictEqual([testRecord1]);
+    });
+    test("should throw error if one occurs when attempting to retrieve a record", async () => {
+      const sampleError = new Error("error");
+      mockQueryPromise.mockRejectedValue(sampleError);
+      await expect(dbh.queryRecordByKey({
+        id: "record1"
+      }, 1, false)).rejects.toThrow("error");
     });
   });
   describe("putRecord", () => {
