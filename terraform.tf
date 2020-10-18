@@ -38,7 +38,7 @@ module "data-retrieval-lambda" {
   handler = "dataRetrievalLambda.handler"
   source_dir = "${path.module}/dist"
   notification_sns_queue_name = var.notification_sns_queue_name
-  timeout = 5
+  timeout = 10
 }
 
 resource "aws_iam_policy" "data-retrieval" {
