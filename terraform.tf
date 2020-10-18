@@ -43,7 +43,8 @@ resource "aws_iam_policy" "ift-lambda-data-store-access" {
               "dynamodb:PutItem",
               "dynamodb:GetItem",
               "dynamodb:UpdateItem",
-              "dynamodb:Scan"
+              "dynamodb:Scan",
+              "dynamodb:Query"
           ],
           "Resource": "arn:aws:dynamodb:*:*:table/${var.name}-*"
       }
