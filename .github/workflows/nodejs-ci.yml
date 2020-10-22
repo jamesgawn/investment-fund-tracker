@@ -94,7 +94,7 @@ jobs:
             ${{ runner.os }}-build-npm-
       - name: NPM Install
         run: npm install
-      - name: Run Coverage Test
+      - name: Run Build
         run: npm run build
         env:
           CI: true
