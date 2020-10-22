@@ -8,3 +8,6 @@ export function rethrowError(log: LoggerHelper, friendlyMessage: string, err: Er
   log.error(friendlyMessage, err, data);
   return err;
 }
+export function round(value: number, places: number) {
+  return +(value.toFixed(places));
+}

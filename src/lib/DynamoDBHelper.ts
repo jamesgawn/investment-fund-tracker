@@ -42,20 +42,25 @@ export class DynamoDBHelper<T extends object> extends Base {
     }
   }
 
-  async queryRecordByKey(keyParameters: object, limit: number, asc: boolean) {
+  async queryRecordByKey(attributeValues: object, keyConditionExpression: string, limit: number, asc: boolean) {
+    const logData = {
+      ExpressionAttributeValues: attributeValues,
+      KeyConditionExpression: keyConditionExpression
+    };
     try {
       const params = {
         TableName: this.tableName,
-        Key: keyParameters,
+        ExpressionAttributeValues: attributeValues,
+        KeyConditionExpression: keyConditionExpression,
         Limit: limit,
         ScanIndexForward: asc
       };
-      this.log.info("Retrieving record", keyParameters);
+      this.log.info("Retrieving record", logData);
       const result = await this.client.query(params).promise();
-      this.log.info("Retrieved record", keyParameters);
+      this.log.info("Retrieved record", logData);
       return result.Items as T[];
     } catch (err) {
-      throw this.rethrowError("Failed to query records", err, keyParameters);
+      throw this.rethrowError("Failed to query records", err, logData);
     }
   }
 

@@ -106,12 +106,13 @@ describe("DynamoDBHelper", () => {
       } as any);
       const record = await dbh.queryRecordByKey({
         id: "record1"
-      }, 1, false);
+      }, "id: id", 1, false);
       expect(mockQuery).toBeCalledWith({
         TableName: tableName,
-        Key: {
+        ExpressionAttributeValues: {
           "id": "record1",
         },
+        KeyConditionExpression: "id: id",
         Limit: 1,
         ScanIndexForward: false
       });
@@ -122,7 +123,7 @@ describe("DynamoDBHelper", () => {
       mockQueryPromise.mockRejectedValue(sampleError);
       await expect(dbh.queryRecordByKey({
         id: "record1"
-      }, 1, false)).rejects.toThrow("error");
+      }, "id: id", 1, false)).rejects.toThrow("error");
     });
   });
   describe("putRecord", () => {

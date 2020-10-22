@@ -105,3 +105,7 @@ output "lambda_execution_role_name" {
 output "lambda_function_arn" {
   value = aws_lambda_function.lambda.arn
 }
+
+output "name" {
+  value = aws_lambda_function.lambda.function_name
+}
