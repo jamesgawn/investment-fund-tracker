@@ -5,6 +5,7 @@ import {IFundPrice} from "./domain/IFundPrice";
 import {LoggerHelper} from "./lib/LoggerHelper";
 import {IFundHolding} from "./domain/IFundHolding";
 import {FundHoldingValuation} from "./domain/FundHoldingValuation";
+import {APIGatewayProxyHandlerV2} from "aws-lambda";
 
 export const dataRetrievalHandler : APIGatewayProxyHandlerV2<void> = async (event, context) => {
   const log = LoggerHelper.createLogger("ift-data-retrieval", event, context);
