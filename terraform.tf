@@ -108,21 +108,6 @@ resource "aws_dynamodb_table" "fund-prices" {
   }
 }
 
-module "holding-valuation-lambda" {
-  source = "./infra/lambda-simple"
-  name = "${var.name}-holding-valuation"
-  description = "A lambda function to calculate the currently holding valuation."
-  handler = "lambda.holdingValuationHandler"
-  source_dir = "${path.module}/dist"
-  notification_sns_queue_name = var.notification_sns_queue_name
-  timeout = 10
-}
-
-resource "aws_iam_role_policy_attachment" "holding-valuation-lambda" {
-  policy_arn = aws_iam_policy.ift-lambda-data-store-access.arn
-  role = module.holding-valuation-lambda.lambda_execution_role_name
-}
-
 resource "aws_dynamodb_table" "fund-holdings" {
   name = "${var.name}-fund-holdings"
   billing_mode = "PAY_PER_REQUEST"
@@ -139,6 +124,8 @@ resource "aws_dynamodb_table" "fund-holdings" {
     type = "S"
   }
 }
+
+// API Gateway Configuration for Endpoints
 
 resource "aws_apigatewayv2_api" "api" {
   name          = "ift-api"
@@ -161,26 +148,6 @@ resource "aws_apigatewayv2_stage" "api" {
     { "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","routeKey":"$context.routeKey", "status":"$context.status","protocol":"$context.protocol", "responseLength":$context.responseLength, "integrationStatus": $context.integrationStatus, "integrationErrorMessage": "$context.integrationErrorMessage", "integration": { "error": "$context.integration.error", "integrationstatus": $context.integration.integrationStatus, "latency": $context.integration.latency, "requestId": "$context.integration.requestId", "status": $context.integration.status } }
 EOF
   }
-}
-
-resource "aws_apigatewayv2_integration" "holding-valuation" {
-  api_id           = aws_apigatewayv2_api.api.id
-  integration_type = "AWS_PROXY"
-  integration_uri           = module.holding-valuation-lambda.lambda_function_arn
-  payload_format_version = "2.0"
-}
-
-resource "aws_apigatewayv2_route" "holding-valuation" {
-  api_id = aws_apigatewayv2_api.api.id
-  route_key = "GET /holdings"
-  target = "integrations/${aws_apigatewayv2_integration.holding-valuation.id}"
-}
-
-resource "aws_lambda_permission" "holding-valuation" {
-  action = "lambda:InvokeFunction"
-  function_name = module.holding-valuation-lambda.name
-  principal = "apigateway.amazonaws.com"
-  source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*/holdings"
 }
 
 data "aws_acm_certificate" "api_cert" {
@@ -219,4 +186,28 @@ resource "aws_route53_record" "api" {
     zone_id                = aws_apigatewayv2_domain_name.api.domain_name_configuration[0].hosted_zone_id
     evaluate_target_health = false
   }
+}
+
+// Holding Valuation Endpoint
+
+module "holding-valuation-lambda" {
+  source = "./infra/lambda-simple"
+  name = "${var.name}-holding-valuation"
+  description = "A lambda function to calculate the currently holding valuation."
+  handler = "lambda.holdingValuationHandler"
+  source_dir = "${path.module}/dist"
+  notification_sns_queue_name = var.notification_sns_queue_name
+  timeout = 10
+}
+
+resource "aws_iam_role_policy_attachment" "holding-valuation-lambda" {
+  policy_arn = aws_iam_policy.ift-lambda-data-store-access.arn
+  role = module.holding-valuation-lambda.lambda_execution_role_name
+}
+
+module "holding-valuation-endpoint" {
+  source = "./infra/lambda-api-gateway-integration"
+  lambda_name = module.holding-valuation-lambda.name
+  api_gateway_id = aws_apigatewayv2_api.api.id
+  api_gateway_execution_arn = aws_apigatewayv2_api.api.execution_arn
 }
