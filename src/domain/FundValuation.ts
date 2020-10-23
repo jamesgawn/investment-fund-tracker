@@ -6,9 +6,9 @@ export class FundValuation {
   profitValue: number;
   profitPercentage: number;
   constructor(originalValue: number, currentValue: number) {
-    this.originalValue = originalValue;
-    this.currentValue = currentValue;
+    this.originalValue = round(originalValue, 2);
+    this.currentValue = round(currentValue, 2);
     this.profitValue = round(currentValue - originalValue, 2);
-    this.profitPercentage = round((this.currentValue - this.originalValue) / this.currentValue, 2);
+    this.profitPercentage = round((currentValue - originalValue) / currentValue, 2);
   }
 }
