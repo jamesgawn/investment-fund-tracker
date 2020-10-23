@@ -3,9 +3,10 @@ import {IFund} from "./domain/IFund";
 import {SecurityRetriever} from "./lib/SecurityRetriever";
 import {IFundPrice} from "./domain/IFundPrice";
 import {LoggerHelper} from "./lib/LoggerHelper";
-import {IFundHolding} from "./domain/IFundHolding";
 import {FundHoldingValuation} from "./domain/FundHoldingValuation";
 import {APIGatewayProxyHandlerV2} from "aws-lambda";
+import {valueAll, valueHoldings} from "./lib/ValuationTools";
+import {FundValuation} from "./domain/FundValuation";
 
 export const dataRetrievalHandler : APIGatewayProxyHandlerV2<void> = async (event, context) => {
   const log = LoggerHelper.createLogger("ift-data-retrieval", event, context);
@@ -23,16 +24,10 @@ export const dataRetrievalHandler : APIGatewayProxyHandlerV2<void> = async (even
 
 export const holdingValuationHandler : APIGatewayProxyHandlerV2<FundHoldingValuation[]> = async (event, context) => {
   const log = LoggerHelper.createLogger("ift-holding-valuation", event, context);
-  log.info("Calculating fund holding valuations");
-  const fundHoldingsTable = new DynamoDBHelper<IFundHolding>(log, "ift-fund-holdings");
-  const fundPriceTable = new DynamoDBHelper<IFundPrice>(log, "ift-fund-prices");
-  const fundHoldings = await fundHoldingsTable.getRecords();
-  const fundHoldingValuation = await Promise.all(fundHoldings.map<Promise<FundHoldingValuation>>(async (fundHolding) => {
-    const fundPrice = await fundPriceTable.queryRecordByKey({
-      ":isin": fundHolding.isin
-    }, "isin = :isin", 1, false);
-    return new FundHoldingValuation(fundPrice[0], fundHolding);
-  }));
-  log.info("Returning fund holding valuations", fundHoldingValuation);
-  return fundHoldingValuation;
+  return valueHoldings(log);
+};
+
+export const valuationHandler : APIGatewayProxyHandlerV2<FundValuation> = async (event, context) => {
+  const log = LoggerHelper.createLogger("ift-valuation", event, context);
+  return valueAll(log);
 };

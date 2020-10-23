@@ -1,3 +1,7 @@
+variable "route" {
+  type = string
+}
+
 variable "lambda_name" {
   type = string
 }
@@ -23,7 +27,7 @@ resource "aws_apigatewayv2_integration" "integration" {
 
 resource "aws_apigatewayv2_route" "holding-valuation" {
   api_id = var.api_gateway_id
-  route_key = "GET /holdings"
+  route_key = "GET ${var.route}"
   target = "integrations/${aws_apigatewayv2_integration.integration.id}"
 }
 
@@ -31,5 +35,5 @@ resource "aws_lambda_permission" "holding-valuation" {
   action = "lambda:InvokeFunction"
   function_name = data.aws_lambda_function.function.function_name
   principal = "apigateway.amazonaws.com"
-  source_arn = "${var.api_gateway_execution_arn}/*/*/holdings"
+  source_arn = "${var.api_gateway_execution_arn}/*/*/*"
 }

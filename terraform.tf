@@ -128,7 +128,7 @@ resource "aws_dynamodb_table" "fund-holdings" {
 // API Gateway Configuration for Endpoints
 
 resource "aws_apigatewayv2_api" "api" {
-  name          = "ift-api"
+  name          = "${var.name}-api"
   protocol_type = "HTTP"
   disable_execute_api_endpoint = true
 }
@@ -210,4 +210,30 @@ module "holding-valuation-endpoint" {
   lambda_name = module.holding-valuation-lambda.name
   api_gateway_id = aws_apigatewayv2_api.api.id
   api_gateway_execution_arn = aws_apigatewayv2_api.api.execution_arn
+  route = "/holdings"
+}
+
+// Valuation Endpoint
+
+module "valuation-lambda" {
+  source = "./infra/lambda-simple"
+  name = "${var.name}-valuation"
+  description = "A lambda function to calculate the current valuation summarised across all holdings."
+  handler = "lambda.valuationHandler"
+  source_dir = "${path.module}/dist"
+  notification_sns_queue_name = var.notification_sns_queue_name
+  timeout = 10
+}
+
+resource "aws_iam_role_policy_attachment" "valuation-lambda" {
+  policy_arn = aws_iam_policy.ift-lambda-data-store-access.arn
+  role = module.valuation-lambda.lambda_execution_role_name
+}
+
+module "valuation-endpoint" {
+  source = "./infra/lambda-api-gateway-integration"
+  lambda_name = module.valuation-lambda.name
+  api_gateway_id = aws_apigatewayv2_api.api.id
+  api_gateway_execution_arn = aws_apigatewayv2_api.api.execution_arn
+  route = "/"
 }

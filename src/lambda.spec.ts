@@ -1,4 +1,4 @@
-import {dataRetrievalHandler, holdingValuationHandler} from "./lambda";
+import {dataRetrievalHandler, holdingValuationHandler, valuationHandler} from "./lambda";
 import {FundPrice} from "./domain/FundPrice";
 import {Fund} from "./domain/Fund";
 
@@ -70,6 +70,32 @@ describe("lambda", () => {
         profitValue: 5,
         profitPercentage: 0.09
       }]);
+    });
+  });
+  describe("valuationHandler", ()=> {
+    const testFundHolding = {
+      isin: "GB0001",
+      date: "2020-01-01",
+      amount: 100,
+      price: 50
+    };
+    const price = {
+      isin: "GB001",
+      name: "blah",
+      price: 55,
+      date: ""
+    };
+    beforeEach(() => {
+      mockGetRecords.mockResolvedValue([testFundHolding]);
+      mockQueryRecordsByKey.mockResolvedValue([price]);
+    });
+    test("should run successfully", async () => {
+      expect(valuationHandler(event as any, context as any, {} as any)).resolves.toEqual({
+        originalValue: 50,
+        currentValue: 55,
+        profitValue: 5,
+        profitPercentage: 0.09
+      });
     });
   });
 });
