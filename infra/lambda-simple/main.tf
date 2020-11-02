@@ -30,6 +30,11 @@ variable "notification_sns_queue_name" {
   description = "The name of the SNS queue to send ok/error alarms if the lambda stops working."
 }
 
+variable "periodsFailingForAlarm" {
+  type = number
+  default = 1
+}
+
 data "archive_file" "lambda_code" {
   type        = "zip"
   output_path = "${path.root}/deploy/${var.name}.zip"
@@ -83,7 +88,7 @@ resource "aws_cloudwatch_metric_alarm" "monitoring_alarm" {
   alarm_name = "${var.name}-alarm"
   alarm_description = "${var.name} lambda function monitoring."
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods = 1
+  evaluation_periods = var.periodsFailingForAlarm
   namespace = "AWS/Lambda"
   metric_name = "Errors"
   statistic = "Sum"

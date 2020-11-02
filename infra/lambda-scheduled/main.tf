@@ -35,6 +35,11 @@ variable "notification_sns_queue_name" {
   description = "The name of the SNS queue to send ok/error alarms if the lambda stops working."
 }
 
+variable "periodsFailingForAlarm" {
+  type = number
+  default = 2
+}
+
 module "lambda" {
   source = "../lambda-simple"
   name = var.name
@@ -44,6 +49,7 @@ module "lambda" {
   memory_size = var.memory_size
   timeout = var.timeout
   notification_sns_queue_name = var.notification_sns_queue_name
+  periodsFailingForAlarm = var.periodsFailingForAlarm
 }
 
 resource "aws_cloudwatch_event_rule" "scheduled_event_rule" {

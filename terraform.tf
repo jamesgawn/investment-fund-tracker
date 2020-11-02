@@ -73,6 +73,7 @@ module "data-retrieval-lambda" {
   source_dir = "${path.module}/dist"
   notification_sns_queue_name = var.notification_sns_queue_name
   timeout = 10
+  periodsFailingForAlarm = 2
 }
 
 resource "aws_iam_role_policy_attachment" "data-retrieval-lambda" {
