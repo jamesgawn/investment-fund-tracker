@@ -10,12 +10,13 @@ export async function valueHoldings(log: Logger) {
   const fundHoldingsTable = new DynamoDBHelper<IFundHolding>(log, "ift-fund-holdings");
   const fundService = new FundService(log);
   const fundHoldings = await fundHoldingsTable.getRecords();
-  const fundHoldingValuation = await Promise.all(fundHoldings.map<Promise<FundHoldingValuation>>(async (fundHolding) => {
+  const fundHoldingValuations : FundHoldingValuation[] = [];
+  for (const fundHolding of fundHoldings) {
     const fundPrice = await fundService.getLatestPrice(fundHolding.isin);
-    return new FundHoldingValuation(fundPrice, fundHolding);
-  }));
-  log.info("Returning fund holding valuations", fundHoldingValuation);
-  return fundHoldingValuation;
+    fundHoldingValuations.push(new FundHoldingValuation(fundPrice, fundHolding));
+  }
+  log.info("Returning fund holding valuations", fundHoldingValuations);
+  return fundHoldingValuations;
 }
 
 export async function valueAll(log: Logger) {

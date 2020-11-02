@@ -12,14 +12,17 @@ export class FundService extends Base {
   }
 
   async getLatestPrice(isin: string) {
+    this.log.info(`Retrieving the latest price for ${isin}`);
     const cachedValue = this.priceCache.get(isin);
     if (cachedValue) {
+      this.log.info(`Returning latest price for ${isin} from the cache`);
       return cachedValue;
     } else {
       const fundPrice = await this.priceTable.queryRecordByKey({
         ":isin": isin
       }, "isin = :isin", 1, false);
       this.priceCache.set(isin, fundPrice[0]);
+      this.log.info(`Returning latest price for ${isin} from the DynamoDB`);
       return fundPrice[0];
     }
   }
