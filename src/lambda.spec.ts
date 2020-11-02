@@ -5,20 +5,27 @@ import {Fund} from "./domain/Fund";
 const mockGetRecords = jest.fn();
 const mockPutRecord = jest.fn();
 const mockQueryRecordsByKey = jest.fn();
-jest.mock("./lib/DynamoDBHelper", () => ({
-  DynamoDBHelper: jest.fn().mockImplementation(() => ({
-    getRecords: mockGetRecords,
-    putRecord: mockPutRecord,
-    queryRecordByKey: mockQueryRecordsByKey
-  }))
-}));
+// jest.mock("./lib/DynamoDBHelper", () => ({
+//   DynamoDBHelper: jest.fn().mockImplementation(() => ({
+//     getRecords: mockGetRecords,
+//     putRecord: mockPutRecord,
+//     queryRecordByKey: mockQueryRecordsByKey
+//   }))
+// }));
+
+const getLatestPrice = jest.fn();
+// jest.mock("./lib/FundService", () => ({
+//   FundService: jest.fn().mockImplementation(() => ({
+//     getLatestPrice: getLatestPrice
+//   }))
+// }));
 
 const mockGetFund = jest.fn();
-jest.mock("./lib/SecurityRetriever", () => ({
-  SecurityRetriever: jest.fn().mockImplementationOnce(() => ({
-    getFundPrice: mockGetFund
-  }))
-}));
+// jest.mock("./lib/SecurityRetriever", () => ({
+//   SecurityRetriever: jest.fn().mockImplementationOnce(() => ({
+//     getFundPrice: mockGetFund
+//   }))
+// }));
 
 describe("lambda", () => {
   const testFund = new Fund("GB0001", "Bingo Bob Fund");
@@ -87,10 +94,11 @@ describe("lambda", () => {
     };
     beforeEach(() => {
       mockGetRecords.mockResolvedValue([testFundHolding]);
-      mockQueryRecordsByKey.mockResolvedValue([price]);
+      getLatestPrice.mockResolvedValue(price);
     });
     test("should run successfully", async () => {
-      expect(valuationHandler(event as any, context as any, {} as any)).resolves.toEqual({
+      const result = await valuationHandler(event as any, context as any, {} as any);
+      expect(result).toEqual({
         originalValue: 50,
         currentValue: 55,
         profitValue: 5,
