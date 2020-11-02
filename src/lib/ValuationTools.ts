@@ -1,20 +1,18 @@
 import {DynamoDBHelper} from "./DynamoDBHelper";
 import {IFundHolding} from "../domain/IFundHolding";
-import {IFundPrice} from "../domain/IFundPrice";
 import {FundHoldingValuation} from "../domain/FundHoldingValuation";
 import Logger from "bunyan";
 import {FundValuation} from "../domain/FundValuation";
+import {FundService} from "./FundService";
 
 export async function valueHoldings(log: Logger) {
   log.info("Calculating fund holding valuations");
   const fundHoldingsTable = new DynamoDBHelper<IFundHolding>(log, "ift-fund-holdings");
-  const fundPriceTable = new DynamoDBHelper<IFundPrice>(log, "ift-fund-prices");
+  const fundService = new FundService(log);
   const fundHoldings = await fundHoldingsTable.getRecords();
   const fundHoldingValuation = await Promise.all(fundHoldings.map<Promise<FundHoldingValuation>>(async (fundHolding) => {
-    const fundPrice = await fundPriceTable.queryRecordByKey({
-      ":isin": fundHolding.isin
-    }, "isin = :isin", 1, false);
-    return new FundHoldingValuation(fundPrice[0], fundHolding);
+    const fundPrice = await fundService.getLatestPrice(fundHolding.isin);
+    return new FundHoldingValuation(fundPrice, fundHolding);
   }));
   log.info("Returning fund holding valuations", fundHoldingValuation);
   return fundHoldingValuation;
