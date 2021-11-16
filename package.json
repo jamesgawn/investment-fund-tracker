@@ -41,7 +41,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-config-google": "^0.14.0",
-    "aws-sdk": "^2.771.0",
+    "aws-sdk": "^2.814.0",
     "@types/aws-lambda": "^8.10.63",
     "@types/aws-sdk": "^2.7.0"
   },
